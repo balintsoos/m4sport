@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>M4 Sport</title>
+
+  <!-- Shaka Player (with UI controls) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.10.9/shaka-player.ui.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.10.9/controls.min.css">
+
+  <style>
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background: black;
+    }
+
+    #video-container {
+      width: 100%;
+      height: 100%;
+      background: black;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      background: black;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="video-container">
+    <video id="video" class="shaka-video" autoplay playsinline></video>
+  </div>
+
+  <script>
+    const manifestUri = 'https://c402-node62-cdn.connectmedia.hu/150104/447e34a6c987b923a123934641aee7eb/68ce7a71/index.m3u8';
+
+    async function initPlayer() {
+      const video = document.getElementById('video');
+
+      // Install polyfills
+      shaka.polyfill.installAll();
+
+      if (!shaka.Player.isBrowserSupported()) {
+        console.error("Browser not supported!");
+        return;
+      }
+
+      // Create player instance
+      const player = new shaka.Player(video);
+
+      // Attach UI overlay (this adds the Shaka controls)
+      const ui = new shaka.ui.Overlay(player, document.getElementById('video-container'), video);
+
+      try {
+        await player.load(manifestUri);
+        console.log("Stream loaded successfully");
+      } catch (e) {
+        console.error("Error loading stream", e);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initPlayer);
+  </script>
+</body>
+
+</html>
