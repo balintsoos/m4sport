@@ -1,0 +1,7 @@
+name: m4sport
+
+services:
+  scraper:
+    build:
+      context: .
+      dockerfile: scraper.Dockerfile

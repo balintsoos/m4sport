@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "extract": "node extract-manifest-url.js"
+    "scraper": "node scraper.js"
   },
   "dependencies": {
     "playwright": "^1.55.1"
