@@ -1,35 +1,44 @@
 import { firefox } from "playwright";
 import fs from "fs";
+import path from "path";
 
 const pageUrl = "https://m4sport.hu/elo";
-const urlPattern = "/index.m3u8?";
+const manifestFileName = "index.m3u8";
+const playerFrameFileName = "player.php";
 
 (async () => {
-  const urls = [];
+  let manifestUrl = null;
   const browser = await firefox.launch({ headless: true });
   const page = await browser.newPage();
 
-  page.on("request", (request) => {
-    const url = request.url();
-    if (url.includes(urlPattern)) {
-      urls.push(url);
-    }
-  });
-
   await page.goto(pageUrl, { waitUntil: "networkidle" });
+
+  for (const frame of page.frames()) {
+    if (frame.url().includes(playerFrameFileName)) {
+      const frameHtml = await frame.content();
+      if (frameHtml && frameHtml.includes(manifestFileName)) {
+        const match = frameHtml.match(/"file":\s*"([^"?]+)/);
+        manifestUrl = match ? match[1].replace(/\\\//g, "/") : null;
+      }
+    }
+  }
+
   await browser.close();
 
-  if (urls.length === 0) {
-    console.error("No URLs found");
+  if (!manifestUrl) {
+    console.error("No URL found");
     process.exit(1);
   }
 
-  console.log("Found URLs:", urls);
-
-  const manifestUrl = urls[0].split("?v=")[0];
+  console.log("Found URL:", manifestUrl);
   const updatedAt = new Date();
+
+  const outputDir = path.resolve("./scraped");
+  fs.mkdirSync(outputDir, { recursive: true });
+  const outFile = path.join(outputDir, "manifest-url.json");
   fs.writeFileSync(
-    "manifest-url.json",
-    JSON.stringify({ manifestUrl, updatedAt }, null, 2)
+    outFile,
+    JSON.stringify({ manifestUrl, updatedAt }, null, 2),
+    { encoding: "utf-8" }
   );
 })();

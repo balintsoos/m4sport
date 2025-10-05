@@ -40,7 +40,7 @@
 
   <script>
     async function initPlayer() {
-      const manifestUrl = await fetch('/manifest-url.json')
+      const manifestUrl = await fetch('/scraped/manifest-url.json')
         .then(res => res.json())
         .then(data => data.manifestUrl);
 

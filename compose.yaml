@@ -5,3 +5,5 @@ services:
     build:
       context: .
       dockerfile: scraper.Dockerfile
+    volumes:
+      - ./scraped:/app/scraped
