@@ -39,9 +39,11 @@
   </div>
 
   <script>
-      const manifestUri = '.../index.m3u8';
-
     async function initPlayer() {
+      const manifestUrl = await fetch('/manifest-url.json')
+        .then(res => res.json())
+        .then(data => data.manifestUrl);
+
       const video = document.getElementById('video');
 
       // Install polyfills
@@ -59,7 +61,7 @@
       const ui = new shaka.ui.Overlay(player, document.getElementById('video-container'), video);
 
       try {
-        await player.load(manifestUri);
+        await player.load(manifestUrl);
         console.log("Stream loaded successfully");
       } catch (e) {
         console.error("Error loading stream", e);
