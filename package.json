@@ -1,0 +1,11 @@
+{
+  "name": "m4sport",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "extract": "node extract-manifest-url.js"
+  },
+  "dependencies": {
+    "playwright": "^1.55.1"
+  }
+}
