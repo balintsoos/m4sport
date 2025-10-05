@@ -7,3 +7,12 @@ services:
       dockerfile: scraper.Dockerfile
     volumes:
       - ./scraped:/app/scraped
+
+  server:
+    build:
+      context: .
+      dockerfile: server.Dockerfile
+    volumes:
+      - ./scraped:/usr/local/apache2/htdocs/scraped
+    ports:
+      - "8080:80"
