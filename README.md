@@ -9,8 +9,8 @@ M4 Sport TV channel stream
 docker compose up scraper
 ```
 
-2. Serve page
+2. Serve player
 
 ```bash
-docker compose up server
+docker compose up player
 ```

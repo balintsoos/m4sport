@@ -8,10 +8,10 @@ services:
     volumes:
       - ./scraped:/app/scraped
 
-  server:
+  player:
     build:
       context: .
-      dockerfile: server.Dockerfile
+      dockerfile: player.Dockerfile
     volumes:
       - ./scraped:/usr/local/apache2/htdocs/scraped
     ports:
