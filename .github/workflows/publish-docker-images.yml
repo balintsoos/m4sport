@@ -31,8 +31,7 @@ jobs:
       - name: Build and push scraper image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: scraper.Dockerfile
+          context: ./src/scraper
           push: true
           tags: |
             ${{ env.IMAGE_NAME_PREFIX }}-scraper:latest
@@ -41,8 +40,7 @@ jobs:
       - name: Build and push player image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: player.Dockerfile
+          context: ./src/player
           push: true
           tags: |
             ${{ env.IMAGE_NAME_PREFIX }}-player:latest

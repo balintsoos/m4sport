@@ -3,15 +3,13 @@ name: m4sport
 services:
   scraper:
     build:
-      context: .
-      dockerfile: scraper.Dockerfile
+      context: ./src/scraper
     volumes:
       - ./scraped:/app/scraped
 
   player:
     build:
-      context: .
-      dockerfile: player.Dockerfile
+      context: ./src/player
     volumes:
       - ./scraped:/usr/local/apache2/htdocs/scraped
     ports:
