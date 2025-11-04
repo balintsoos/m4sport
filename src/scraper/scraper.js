@@ -2,46 +2,47 @@ import { firefox } from "playwright";
 import fs from "fs";
 import path from "path";
 
-const pageUrl = "https://m4sport.hu/elo";
-const playerFrameSourceUrl = "player.php";
-const manifestUrlPattern = /"file":\s*"([^"?]+)/;
-const outputDirectoryPath = "./scraped";
-const outputFileName = "manifest-url.json";
+const PAGE_URL = "https://m4sport.hu/elo";
+const PLAYER_FRAME_URL = "player.php";
+const MANIFEST_URL_PATTERN = /"file":\s*"([^"?]+)/;
+const OUTPUT_DIR_PATH = "./scraped";
+const OUTPUT_FILE_NAME = "manifest-url.json";
 
-(async () => {
+export async function scrapeManifestUrl() {
   const browser = await firefox.launch({ headless: true });
   const page = await browser.newPage();
-  await page.goto(pageUrl, { waitUntil: "load" });
+  await page.goto(PAGE_URL, { waitUntil: "networkidle", timeout: 20000 });
 
   const playerFrame = getPlayerFrame(page);
   if (!playerFrame) {
-    console.error("Player frame not found");
+    log("Player frame not found");
     await browser.close();
-    process.exit(1);
+    return;
   }
 
   const manifestUrl = await getManifestUrl(playerFrame);
   await browser.close();
   if (!manifestUrl) {
-    console.error("Manifest URL not found in player frame");
-    process.exit(1);
+    log("Manifest URL not found");
+    return;
   }
 
-  console.log("Manifest URL found:", manifestUrl);
+  log("Manifest URL found");
   const outputFileContent = getOutputFileContent(manifestUrl);
   writeOutputFile(outputFileContent);
-  process.exit(0);
-})();
+}
+
+export function log(...message) {
+  console.log(new Date().toISOString(), ...message);
+}
 
 function getPlayerFrame(page) {
-  return page
-    .frames()
-    .find((frame) => frame.url().includes(playerFrameSourceUrl));
+  return page.frames().find((frame) => frame.url().includes(PLAYER_FRAME_URL));
 }
 
 async function getManifestUrl(playerFrame) {
   const playerFrameContent = await playerFrame.content();
-  const matches = playerFrameContent.match(manifestUrlPattern);
+  const matches = playerFrameContent.match(MANIFEST_URL_PATTERN);
   return matches ? cleanUpEscapedSlashes(matches[1]) : null;
 }
 
@@ -50,9 +51,9 @@ function cleanUpEscapedSlashes(url) {
 }
 
 function writeOutputFile(fileContent) {
-  const outputDirectory = path.resolve(outputDirectoryPath);
+  const outputDirectory = path.resolve(OUTPUT_DIR_PATH);
   fs.mkdirSync(outputDirectory, { recursive: true });
-  const outFile = path.join(outputDirectory, outputFileName);
+  const outFile = path.join(outputDirectory, OUTPUT_FILE_NAME);
   fs.writeFileSync(outFile, fileContent, { encoding: "utf-8" });
 }
 
