@@ -1,4 +1,4 @@
-import { firefox } from "playwright";
+import { chromium } from "playwright";
 import fs from "fs";
 import path from "path";
 
@@ -9,7 +9,7 @@ const OUTPUT_DIR_PATH = "./scraped";
 const OUTPUT_FILE_NAME = "manifest-url.json";
 
 export async function scrapeManifestUrl() {
-  const browser = await firefox.launch({ headless: true });
+  const browser = await chromium.launch();
   const page = await browser.newPage();
   await page.goto(PAGE_URL, { waitUntil: "networkidle", timeout: 20000 });
 
