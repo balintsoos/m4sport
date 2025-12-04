@@ -8,7 +8,7 @@ const MANIFEST_URL_PATTERN = /"file":\s*"([^"?]+)/;
 const OUTPUT_DIR_PATH = "./scraped";
 const OUTPUT_FILE_NAME = "manifest-url.json";
 
-export async function scrapeManifestUrl() {
+export async function scrapeManifestUrl(dateLocalIso) {
   const browser = await chromium.launch();
   const context = await browser.newContext();
   const page = await context.newPage();
@@ -26,7 +26,7 @@ export async function scrapeManifestUrl() {
     throw new Error("Manifest URL not found");
   }
 
-  const outputFileContent = getOutputFileContent(manifestUrl);
+  const outputFileContent = getOutputFileContent(manifestUrl, dateLocalIso);
   writeOutputFile(outputFileContent);
 }
 
@@ -51,9 +51,8 @@ function writeOutputFile(fileContent) {
   fs.writeFileSync(outFile, fileContent, { encoding: "utf-8" });
 }
 
-function getOutputFileContent(manifestUrl) {
-  const updatedAt = new Date().toISOString();
-  return JSON.stringify({ manifestUrl, updatedAt }, null, 2);
+function getOutputFileContent(manifestUrl, dateLocalIso) {
+  return JSON.stringify({ manifestUrl, updatedAt: dateLocalIso }, null, 2);
 }
 
 async function close(page, context, browser) {

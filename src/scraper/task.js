@@ -3,7 +3,7 @@ import { scrapeManifestUrl } from "./scraper.js";
 export function task(context) {
   console.log(`${context.dateLocalIso} | Scrape started`);
 
-  scrapeManifestUrl()
+  scrapeManifestUrl(context.dateLocalIso)
     .then(() => {
       console.log(`${context.dateLocalIso} | Scrape completed`);
       process.exit(0);
