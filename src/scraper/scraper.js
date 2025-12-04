@@ -10,30 +10,24 @@ const OUTPUT_FILE_NAME = "manifest-url.json";
 
 export async function scrapeManifestUrl() {
   const browser = await chromium.launch();
-  const page = await browser.newPage();
+  const context = await browser.newContext();
+  const page = await context.newPage();
   await page.goto(PAGE_URL, { waitUntil: "networkidle", timeout: 20000 });
 
   const playerFrame = getPlayerFrame(page);
   if (!playerFrame) {
-    log("Player frame not found");
-    await browser.close();
-    return;
+    await close(page, context, browser);
+    throw new Error("Player frame not found");
   }
 
   const manifestUrl = await getManifestUrl(playerFrame);
-  await browser.close();
+  await close(page, context, browser);
   if (!manifestUrl) {
-    log("Manifest URL not found");
-    return;
+    throw new Error("Manifest URL not found");
   }
 
-  log("Manifest URL found");
   const outputFileContent = getOutputFileContent(manifestUrl);
   writeOutputFile(outputFileContent);
-}
-
-export function log(...message) {
-  console.log(new Date().toISOString(), ...message);
 }
 
 function getPlayerFrame(page) {
@@ -60,4 +54,10 @@ function writeOutputFile(fileContent) {
 function getOutputFileContent(manifestUrl) {
   const updatedAt = new Date().toISOString();
   return JSON.stringify({ manifestUrl, updatedAt }, null, 2);
+}
+
+async function close(page, context, browser) {
+  await page.close();
+  await context.close();
+  await browser.close();
 }
