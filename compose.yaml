@@ -6,6 +6,9 @@ services:
       context: ./src/scraper
     volumes:
       - ./scraped:/app/scraped
+    environment:
+      - CRON_SCHEDULE=* * * * *
+      - TZ=Europe/Budapest
 
   player:
     build:
