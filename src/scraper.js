@@ -1,12 +1,13 @@
 import { chromium } from "playwright";
 import fs from "fs";
 import path from "path";
-
-const PAGE_URL = "https://m4sport.hu/elo";
-const PLAYER_FRAME_URL = "player.php";
-const MANIFEST_URL_PATTERN = /"file":\s*"([^"?]+)/;
-const OUTPUT_DIR_PATH = "./scraped";
-const OUTPUT_FILE_NAME = "manifest-url.json";
+import {
+  PAGE_URL,
+  PLAYER_FRAME_URL,
+  MANIFEST_URL_PATTERN,
+  OUTPUT_DIR_PATH,
+  OUTPUT_FILE_NAME,
+} from "./config.js";
 
 export async function scrapeManifestUrl(dateLocalIso) {
   const browser = await chromium.launch();
@@ -45,9 +46,8 @@ function cleanUpEscapedSlashes(url) {
 }
 
 function writeOutputFile(fileContent) {
-  const outputDirectory = path.resolve(OUTPUT_DIR_PATH);
-  fs.mkdirSync(outputDirectory, { recursive: true });
-  const outFile = path.join(outputDirectory, OUTPUT_FILE_NAME);
+  fs.mkdirSync(OUTPUT_DIR_PATH, { recursive: true });
+  const outFile = path.join(OUTPUT_DIR_PATH, OUTPUT_FILE_NAME);
   fs.writeFileSync(outFile, fileContent, { encoding: "utf-8" });
 }
 

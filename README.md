@@ -1,41 +1,36 @@
-# M4 Sport TV Player
+# M4 Sport Stream
 
-A containerized solution for streaming M4 Sport TV channel full-screen with automated stream URL discovery.
+A containerized service that scrapes the M4 Sport live stream URL and exposes it as an HTTP redirect and an M3U playlist. Point any video player (VLC, IPTV clients, etc.) at it to watch M4 Sport.
 
-## 🚀 Features
+## Features
 
-- **Automatic Stream Discovery**: Scrapes M4 Sport's live page periodically to get the current stream URL
-- **Web-based Player**: Clean, full-screen video player with resolution and audio channel switcher
-- **Containerized**: Fully containerized solution for easy deployment
+- **Automatic Stream Discovery**: Periodically scrapes M4 Sport's live page using Playwright to extract the current HLS manifest URL
+- **HTTP Stream Redirect**: `GET /stream` returns a `302` redirect to the current manifest URL
+- **M3U Playlist**: `GET /playlist.m3u` serves a playlist file compatible with IPTV players
+- **Startup Scrape**: Automatically scrapes on startup if the manifest is missing or stale (older than 24 hours)
+- **Cron Scheduling**: Configurable cron schedule for periodic re-scraping
 
-## 🛠️ Installation & Usage
+## Installation & Usage
 
 ### Prerequisites
 
-- Internet connection and hungarian IP address for accessing M4 Sport streams
-- Docker and Docker Compose
+- Internet connection with a Hungarian IP address
+- Docker and Docker Compose (or Node.js 24+)
 
-### Option 1: Using Pre-built Images (Recommended)
+### Using Pre-built Image (Recommended)
 
 Add the following to your `compose.yaml`:
 
 ```yaml
 services:
-  m4sport-scraper:
-    image: ghcr.io/balintsoos/m4sport-scraper:latest
-    container_name: m4sport-scraper
-    volumes:
-      - ./m4sport:/app/scraped
-    restart: unless-stopped
-
-  m4sport-player:
-    image: ghcr.io/balintsoos/m4sport-player:latest
-    container_name: m4sport-player
-    volumes:
-      - ./m4sport:/usr/share/nginx/html/scraped
+  m4sport:
+    image: ghcr.io/balintsoos/m4sport:latest
+    environment:
+      - PORT=8080
+      - CRON_SCHEDULE=0 * * * *
+      - TZ=Europe/Budapest
     ports:
-      - "8080:80"
-    restart: unless-stopped
+      - "8080:8080"
 ```
 
 Then run:
@@ -43,60 +38,49 @@ Then run:
 docker compose up -d
 ```
 
-### Option 2: Building from Source
+### Building from Source
 
-1. Clone the repository:
 ```bash
 git clone https://github.com/balintsoos/m4sport.git
 cd m4sport
-```
-
-2. Start the services:
-```bash
 docker compose up -d
 ```
 
-The player will be available at `http://localhost:8080`
+### Environment Variables
 
-## 🔍 How It Works
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `3000` | HTTP server port |
+| `CRON_SCHEDULE` | `0 0 * * *` | Cron expression for scrape frequency |
+| `TZ` | `UTC` | Timezone for cron schedule |
 
-1. **Scraper Process**:
-   - Uses Node.js and Playwright to navigate to M4 Sport's live page
-   - Extracts the HLS manifest URL from the player iframe
-   - Saves the URL with timestamp to `manifest-url.json`
-   - Repeats every hour to handle URL changes
+## Endpoints
 
-2. **Player Process**:
-   - Uses Nginx to serve a web interface on the configured port
-   - Fetches the current manifest URL from the shared JSON file
-   - Initializes Shaka Player with the stream URL
-   - Provides standard video controls (play/pause, volume, fullscreen), resolution and audio channel switcher
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET` | `/stream` | 302 redirect to the current HLS manifest URL |
+| `GET` | `/playlist.m3u` | M3U playlist pointing to `/stream` |
 
-3. **Data Flow**:
-   ```
-   M4 Sport Website → Scraper → manifest-url.json → Player → Browser
-   ```
+## How It Works
 
-## 🐛 Troubleshooting
+```
+M4 Sport Website → Scraper (Playwright) → scraped/manifest-url.json → HTTP Server → Client
+```
 
-### Common Issues
+1. On startup, if no fresh manifest exists, the scraper runs immediately
+2. The cron scheduler triggers periodic re-scrapes to keep the URL current
+3. The HTTP server reads the saved manifest and either redirects to it (`/stream`) or wraps it in an M3U playlist (`/playlist.m3u`)
 
-1. **Stream not loading**: 
-   - Check if the scraper is running and has found a valid URL
-   - Verify the manifest URL in `scraped/manifest-url.json`
+## Troubleshooting
 
-2. **Scraper failing**:
-   - M4 Sport website structure may have changed
-   - Check scraper logs: `docker compose logs scraper`
+- **503 "Stream URL not available yet"**: The scraper hasn't completed its first run. Check logs with `docker compose logs m4sport`.
+- **Scraper failing**: M4 Sport's website structure may have changed. Check logs for error details.
+- **Stale stream URL**: Decrease the `CRON_SCHEDULE` interval (e.g., `*/30 * * * *` for every 30 minutes).
 
-3. **Player not accessible**:
-   - Ensure the port is not in use by another service
-   - Check firewall settings
+## License
 
-## 📄 License
+MIT - see [LICENSE](LICENSE).
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Disclaimer
 
-## ⚠️ Disclaimer
-
-This tool is for educational and personal use only. Please respect M4 Sport's terms of service and copyright policies. The authors are not responsible for any misuse of this software.
+For educational and personal use only. Respect M4 Sport's terms of service and copyright policies.

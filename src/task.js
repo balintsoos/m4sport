@@ -1,15 +1,16 @@
 import { scrapeManifestUrl } from "./scraper.js";
+import logger from "./logger.js";
 
 export function task(context) {
-  console.log(`${context.dateLocalIso} | Scrape started`);
+  logger.info("Scheduled scrape started");
 
   scrapeManifestUrl(context.dateLocalIso)
     .then(() => {
-      console.log(`${context.dateLocalIso} | Scrape completed`);
+      logger.info("Scheduled scrape completed");
       process.exit(0);
     })
     .catch((error) => {
-      console.log(`${context.dateLocalIso} | Scrape failed:`, error);
+      logger.error(error, "Scheduled scrape failed");
       process.exit(1);
     });
 }

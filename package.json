@@ -1,9 +1,13 @@
 {
-  "name": "scraper",
+  "name": "m4sport",
   "private": true,
   "type": "module",
+  "scripts": {
+    "start": "node src/main.js"
+  },
   "dependencies": {
     "node-cron": "^4.2.1",
+    "pino": "^10.3.1",
     "playwright": "1.55.1"
   }
 }

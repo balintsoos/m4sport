@@ -1,19 +1,10 @@
-name: m4sport
-
 services:
-  scraper:
+  m4sport:
     build:
-      context: ./src/scraper
-    volumes:
-      - ./scraped:/app/scraped
+      context: .
     environment:
+      - PORT=8080
       - CRON_SCHEDULE=* * * * *
       - TZ=Europe/Budapest
-
-  player:
-    build:
-      context: ./src/player
-    volumes:
-      - ./scraped:/usr/share/nginx/html/scraped
     ports:
-      - "8080:80"
+      - "8080:8080"
