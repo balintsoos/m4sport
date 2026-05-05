@@ -27,7 +27,6 @@ services:
     image: ghcr.io/balintsoos/m4sport:latest
     environment:
       - PORT=8080
-      - CRON_SCHEDULE=0 * * * *
       - TZ=Europe/Budapest
     ports:
       - "8080:8080"
