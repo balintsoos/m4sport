@@ -1,14 +1,14 @@
-import http from "node:http";
-import fs from "node:fs";
-import { PORT, MANIFEST_PATH } from "./config.js";
+import { createServer } from "node:http";
+import { readFileSync } from "node:fs";
+import { PORT, MANIFEST_FILE_PATH } from "./config.js";
 import logger from "./logger.js";
 
 function getManifestUrl() {
-  const content = fs.readFileSync(MANIFEST_PATH, "utf-8");
+  const content = readFileSync(MANIFEST_FILE_PATH, "utf-8");
   return JSON.parse(content).manifestUrl;
 }
 
-const server = http.createServer((req, res) => {
+const server = createServer((req, res) => {
   if (req.method !== "GET") {
     res.writeHead(405);
     res.end();

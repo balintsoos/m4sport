@@ -31,6 +31,8 @@ services:
       - TZ=Europe/Budapest
     ports:
       - "8080:8080"
+    volumes:
+      - ./config:/config
 ```
 
 Then run:
@@ -64,7 +66,7 @@ docker compose up -d
 ## How It Works
 
 ```
-M4 Sport Website → Scraper (Playwright) → scraped/manifest-url.json → HTTP Server → Client
+M4 Sport Website → Scraper (Playwright) → manifest.json → HTTP Server → Client
 ```
 
 1. On startup, if no fresh manifest exists, the scraper runs immediately

@@ -1,18 +1,12 @@
-import fs from "node:fs";
+import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { dirname } from "node:path";
 import { scrapeManifestUrl } from "./scraper.js";
-import { MANIFEST_PATH, MANIFEST_MAX_AGE_MS } from "./config.js";
+import { MANIFEST_FILE_PATH, MANIFEST_URL_MAX_AGE_MS } from "./config.js";
 import logger from "./logger.js";
 
-function isManifestStale() {
-  if (!fs.existsSync(MANIFEST_PATH)) return true;
-
-  try {
-    const content = JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf-8"));
-    const updatedAt = new Date(content.updatedAt);
-    return Date.now() - updatedAt.getTime() > MANIFEST_MAX_AGE_MS;
-  } catch {
-    return true;
-  }
+const dir = dirname(MANIFEST_FILE_PATH);
+if (!existsSync(dir)) {
+  mkdirSync(dir, { recursive: true });
 }
 
 if (isManifestStale()) {
@@ -21,4 +15,16 @@ if (isManifestStale()) {
   scrapeManifestUrl(now)
     .then(() => logger.info("Initial scrape completed"))
     .catch((err) => logger.error(err, "Initial scrape failed"));
+}
+
+function isManifestStale() {
+  if (!existsSync(MANIFEST_FILE_PATH)) return true;
+
+  try {
+    const content = JSON.parse(readFileSync(MANIFEST_FILE_PATH, "utf-8"));
+    const updatedAt = new Date(content.updatedAt);
+    return Date.now() - updatedAt.getTime() > MANIFEST_URL_MAX_AGE_MS;
+  } catch {
+    return true;
+  }
 }

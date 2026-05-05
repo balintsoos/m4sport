@@ -8,3 +8,5 @@ services:
       - TZ=Europe/Budapest
     ports:
       - "8080:8080"
+    volumes:
+      - ./config:/config

@@ -1,12 +1,10 @@
 import { chromium } from "playwright";
-import fs from "fs";
-import path from "path";
+import { writeFileSync } from "node:fs";
 import {
   PAGE_URL,
   PLAYER_FRAME_URL,
   MANIFEST_URL_PATTERN,
-  OUTPUT_DIR_PATH,
-  OUTPUT_FILE_NAME,
+  MANIFEST_FILE_PATH,
 } from "./config.js";
 
 export async function scrapeManifestUrl(dateLocalIso) {
@@ -46,9 +44,7 @@ function cleanUpEscapedSlashes(url) {
 }
 
 function writeOutputFile(fileContent) {
-  fs.mkdirSync(OUTPUT_DIR_PATH, { recursive: true });
-  const outFile = path.join(OUTPUT_DIR_PATH, OUTPUT_FILE_NAME);
-  fs.writeFileSync(outFile, fileContent, { encoding: "utf-8" });
+  writeFileSync(MANIFEST_FILE_PATH, fileContent, { encoding: "utf-8" });
 }
 
 function getOutputFileContent(manifestUrl, dateLocalIso) {
