@@ -4,17 +4,28 @@ import { scrapeManifestUrl } from "./scraper.js";
 import { MANIFEST_FILE_PATH, MANIFEST_URL_MAX_AGE_MS } from "./config.js";
 import logger from "./logger.js";
 
-const dir = dirname(MANIFEST_FILE_PATH);
-if (!existsSync(dir)) {
-  mkdirSync(dir, { recursive: true });
+export async function runInitialScrape() {
+  createManifestFilePath();
+  if (!isManifestStale()) {
+    logger.info("Manifest is fresh, skipping initial scrape");
+    return;
+  }
+  logger.info("Manifest stale or missing, running initial scraper");
+  const now = new Date().toISOString();
+  try {
+    await scrapeManifestUrl(now);
+    logger.info("Initial scrape completed");
+  } catch (err) {
+    logger.error(err, "Initial scrape failed");
+  }
 }
 
-if (isManifestStale()) {
-  const now = new Date().toISOString();
-  logger.info("Manifest stale or missing, running scraper");
-  scrapeManifestUrl(now)
-    .then(() => logger.info("Initial scrape completed"))
-    .catch((err) => logger.error(err, "Initial scrape failed"));
+function createManifestFilePath() {
+  const dir = dirname(MANIFEST_FILE_PATH);
+  if (existsSync(dir)) {
+    return;
+  }
+  mkdirSync(dir, { recursive: true });
 }
 
 function isManifestStale() {
