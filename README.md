@@ -1,9 +1,10 @@
 # M4 Sport Stream
 
-A containerized service that scrapes the M4 Sport live stream URL and exposes it as an HTTP redirect and an M3U playlist. Point any video player (VLC, IPTV clients, etc.) at it to watch M4 Sport.
+A containerized service that scrapes the M4 Sport live stream URL and serves it with a simple web player and an M3U playlist. Point any video player (VLC, IPTV clients, Jellyfin, etc.) at it to watch M4 Sport.
 
 ## Features
 
+- **Built-in Web Player**: Watch directly in the browser at `/` — powered by [hls.js](https://github.com/video-dev/hls.js)
 - **Automatic Stream Discovery**: Periodically scrapes M4 Sport's live page using Playwright to extract the current HLS manifest URL
 - **HTTP Stream Redirect**: `GET /stream` returns a `302` redirect to the current manifest URL
 - **M3U Playlist**: `GET /playlist.m3u` serves a playlist file compatible with IPTV players
@@ -59,6 +60,7 @@ docker compose up -d
 
 | Method | Path | Description |
 |--------|------|-------------|
+| `GET` | `/` | Built-in web player with hls.js |
 | `GET` | `/stream` | 302 redirect to the current HLS manifest URL |
 | `GET` | `/playlist.m3u` | M3U playlist pointing to `/stream` |
 
