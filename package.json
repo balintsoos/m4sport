@@ -3,7 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node src/main.js"
+    "install-playwright": "PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install --with-deps --only-shell chromium",
+    "start": "PLAYWRIGHT_BROWSERS_PATH=0 node src/main.js"
   },
   "dependencies": {
     "node-cron": "^4.2.1",
