@@ -1,5 +1,6 @@
 import { chromium } from "playwright";
-import { writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 import {
   PAGE_URL,
   PLAYER_FRAME_URL,
@@ -44,6 +45,7 @@ function cleanUpEscapedSlashes(url) {
 }
 
 function writeOutputFile(fileContent) {
+  mkdirSync(dirname(MANIFEST_FILE_PATH), { recursive: true });
   writeFileSync(MANIFEST_FILE_PATH, fileContent, { encoding: "utf-8" });
 }
 

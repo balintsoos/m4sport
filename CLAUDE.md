@@ -26,11 +26,10 @@ There are no tests, linter, or build step configured.
 
 ## Architecture
 
-The app has three phases that run sequentially on startup (`src/main.js`):
+The app has two phases that run sequentially on startup (`src/main.js`):
 
-1. **Initial scrape** (`src/init.js`) — checks if `config/manifest.json` exists and is fresh (< 24h). If stale/missing, runs the scraper immediately.
-2. **HTTP server** (`src/server.js`) — plain `node:http` server serving three endpoints: `/` (hls.js web player), `/stream` (302 redirect to manifest URL), `/playlist.m3u` (M3U playlist).
-3. **Periodic scheduler** (`src/scheduler.js`) — reads `updatedAt` from `manifest.json` and schedules the next scrape for when the manifest will go stale (24h after last scrape) via `setTimeout`, then re-scrapes every 24h via `setInterval`.
+1. **Scheduler** (`src/scheduler.js`) — reads `config/manifest.json` and decides what to do: if missing/stale (>24h), runs the scraper immediately and awaits it; if fresh, schedules the next scrape for when it will go stale. Either way, sets up a 24h interval for subsequent re-scrapes.
+2. **HTTP server** (`src/server.js`) — plain `node:http` server serving three endpoints: `/` (hls.js web player), `/stream` (302 redirect to manifest URL), `/playlist.m3u` (M3U playlist). Started after the initial scrape so `/stream` doesn't 503 during boot.
 
 ### Scraper (`src/scraper.js`)
 

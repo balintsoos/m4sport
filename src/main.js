@@ -1,9 +1,7 @@
-import { runInitialScrape } from "./init.js";
+import { startScheduler } from "./scheduler.js";
 import { startServer } from "./server.js";
-import { schedulePeriodicScrape } from "./scheduler.js";
 
 (async () => {
-  await runInitialScrape();
+  await startScheduler();
   startServer();
-  schedulePeriodicScrape();
 })();
