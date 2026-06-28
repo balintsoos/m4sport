@@ -1,6 +1,4 @@
 export const PORT = process.env.PORT || 3000;
-export const CRON_SCHEDULE = process.env.CRON_SCHEDULE || "0 0 * * *";
-export const TZ = process.env.TZ || "UTC";
 export const MANIFEST_FILE_PATH = process.env.MANIFEST_FILE_PATH || "./config/manifest.json";
 
 export const PAGE_URL = "https://m4sport.hu/elo";

@@ -4,8 +4,6 @@ services:
       context: .
     environment:
       - PORT=8080
-      - CRON_SCHEDULE=* * * * *
-      - TZ=Europe/Budapest
     ports:
       - "8080:8080"
     volumes:

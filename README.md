@@ -9,7 +9,7 @@ A containerized service that scrapes the M4 Sport live stream URL and serves it 
 - **HTTP Stream Redirect**: `GET /stream` returns a `302` redirect to the current manifest URL
 - **M3U Playlist**: `GET /playlist.m3u` serves a playlist file compatible with IPTV players
 - **Startup Scrape**: Automatically scrapes on startup if the manifest is missing or stale (older than 24 hours)
-- **Cron Scheduling**: Configurable cron schedule for periodic re-scraping
+- **Periodic Re-scrape**: Re-scrapes every 24 hours to keep the stream URL current
 
 ## Installation & Usage
 
@@ -28,7 +28,6 @@ services:
     image: ghcr.io/balintsoos/m4sport:latest
     environment:
       - PORT=8080
-      - TZ=Europe/Budapest
     ports:
       - "8080:8080"
     volumes:
@@ -53,8 +52,6 @@ docker compose up -d
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PORT` | `3000` | HTTP server port |
-| `CRON_SCHEDULE` | `0 0 * * *` | Cron expression for scrape frequency |
-| `TZ` | `UTC` | Timezone for cron schedule |
 
 ## Endpoints
 
@@ -71,14 +68,14 @@ M4 Sport Website → Scraper (Playwright) → manifest.json → HTTP Server → 
 ```
 
 1. On startup, if no fresh manifest exists, the scraper runs immediately
-2. The cron scheduler triggers periodic re-scrapes to keep the URL current
+2. The scheduler aligns the next scrape with the manifest's age (24h after the last successful scrape), then re-scrapes every 24 hours
 3. The HTTP server reads the saved manifest and either redirects to it (`/stream`) or wraps it in an M3U playlist (`/playlist.m3u`)
 
 ## Troubleshooting
 
-- **503 "Stream URL not available yet"**: The scraper hasn't completed its first run. Check logs with `docker compose logs m4sport`.
+- **503 "Stream URL not available yet"**: The scraper hasn't completed its first run.
 - **Scraper failing**: M4 Sport's website structure may have changed. Check logs for error details.
-- **Stale stream URL**: Decrease the `CRON_SCHEDULE` interval (e.g., `*/30 * * * *` for every 30 minutes).
+- **Stale stream URL**: Delete `config/manifest.json` and restart the container to force an immediate re-scrape.
 
 ## License
 
