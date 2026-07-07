@@ -1,3 +1,11 @@
-import pino from "pino";
+export function info(message) {
+  console.log(`[INFO] ${getTimestamp()} - ${message}`);
+}
 
-export default pino();
+export function error(message) {
+  console.error(`[ERROR] ${getTimestamp()} - ${message}`);
+}
+
+function getTimestamp() {
+  return new Date().toISOString();
+}
