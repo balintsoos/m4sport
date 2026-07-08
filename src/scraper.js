@@ -1,14 +1,14 @@
-import { chromium } from "playwright";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
+import { chromium } from "playwright";
 import {
   PAGE_URL,
   PLAYER_FRAME_URL,
   MANIFEST_URL_PATTERN,
-  MANIFEST_FILE_PATH,
 } from "./config.js";
+import { writeManifest } from "./manifest.js";
 
-export async function scrapeManifestUrl(dateLocalIso) {
+export async function scrapeManifestUrl() {
   const browser = await chromium.launch();
   const context = await browser.newContext();
   const page = await context.newPage();
@@ -26,8 +26,7 @@ export async function scrapeManifestUrl(dateLocalIso) {
     throw new Error("Manifest URL not found");
   }
 
-  const outputFileContent = getOutputFileContent(manifestUrl, dateLocalIso);
-  writeOutputFile(outputFileContent);
+  writeManifest(manifestUrl);
 }
 
 function getPlayerFrame(page) {
@@ -42,15 +41,6 @@ async function getManifestUrl(playerFrame) {
 
 function cleanUpEscapedSlashes(url) {
   return url.replace(/\\\//g, "/");
-}
-
-function writeOutputFile(fileContent) {
-  mkdirSync(dirname(MANIFEST_FILE_PATH), { recursive: true });
-  writeFileSync(MANIFEST_FILE_PATH, fileContent, { encoding: "utf-8" });
-}
-
-function getOutputFileContent(manifestUrl, dateLocalIso) {
-  return JSON.stringify({ manifestUrl, updatedAt: dateLocalIso }, null, 2);
 }
 
 async function close(page, context, browser) {

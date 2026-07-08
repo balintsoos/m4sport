@@ -2,7 +2,8 @@ import { createServer } from "node:http";
 import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { PORT, MANIFEST_FILE_PATH } from "./config.js";
+import { PORT } from "./config.js";
+import { getManifestUrl } from "./manifest.js";
 import { info } from "./logger.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -45,9 +46,4 @@ export function startServer() {
   server.listen(PORT, () => {
     info(`Server listening on port ${PORT}`);
   });
-}
-
-function getManifestUrl() {
-  const content = readFileSync(MANIFEST_FILE_PATH, "utf-8");
-  return JSON.parse(content).manifestUrl;
 }
